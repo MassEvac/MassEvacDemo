@@ -122,7 +122,7 @@
         
         function onClick(e) {$(".html5lightbox").html5lightbox();}        
         
-        $.getJSON('./file.json.txt', function(data) {
+        $.getJSON('./evac.json', function(data) {
             
             for (var city in data) {
                 showMarker(city, data[city]);
@@ -208,7 +208,7 @@
                     "<h4> Sub-scenario 1: No Interaction, No Intervention </h4>"+
                     "This reflects the time it takes an agent to exit a city from their initial position if there were no bottlenecks and delays. This is intended to normalise the results from the other two sub-scenarios from effect of distance."+
                     "<h4> Sub-scenario 2: With Interaction, No Intervention </h4>"+
-                    "This reflects what would happen if everybody needed to really evacuate an entire city at the same time! As the road links get denser, agents slow down as described by this <a href='fd-figure.png' class='html5lightbox' title='Pedestrian Fundamental Diagram: The best flow here is around 3 agents per meter per second.'>fundamental diagram</a> which is an approximation of walking behaviour from observation of real people. 'Bottlenecks' as demonstrated by our <a href='BBK_9132.png' data-group='FON' class='html5lightbox' title='Sarah and Nick demonstrating our bottleneck machine (name TBD) at Festival of Nature 2014!'>bottleneck machine</a><a href='BBK_9121.png' data-group='FON' class='html5lightbox' title='Neil and Bharat demonstrating our bottleneck machine (name TBD) at Festival of Nature 2014!'></a> cause further hinderance. <br/>"+
+                    "This reflects what would happen if everybody needed to really evacuate an entire city at the same time! As the road links get denser, agents slow down as described by this <a href='fd-figure.png' class='html5lightbox' title='Pedestrian Fundamental Diagram: The best flow here is around 3 agents per meter per second.'>fundamental diagram</a> which is an approximation of walking behaviour from observation of real people. 'Bottlenecks' as demonstrated by our <a href='photos/BBK_9132.png' data-group='FON' class='html5lightbox' title='Sarah and Nick demonstrating our bottleneck machine (name TBD) at Festival of Nature 2014!'>bottleneck machine</a><a href='photos/BBK_9121.png' data-group='FON' class='html5lightbox' title='Neil and Bharat demonstrating our bottleneck machine (name TBD) at Festival of Nature 2014!'></a> cause further hinderance. <br/>"+
                     "<h4> Sub-scenario 3: With Interaction, With Intervention </h4>"+
                     "This sub-scenario is identical to sub-scenario 2 except we 'intervene' by capping the amount of people on any road segment to 3 agents per meter squared to achieve the optimum flow rate of 3 agents per meter per second. In reality, this would translate to co-ordinated teams of marshalls directing the flow of people.<br/>";
             	    $(".html5lightbox").html5lightbox();
