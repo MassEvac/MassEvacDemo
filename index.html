@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mass Evacuation Demo</title>
+	<meta charset="utf-8" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <style>
+   html, body, #map {
+      height:100%;
+      width:100%;
+      padding:0px;
+      margin:0px;
+   } 
+   
+   .help {
+		padding: 6px 8px;
+		font: 14px/16px Arial, Helvetica, sans-serif;
+		background: white;
+		background: rgba(255,255,255,0.9);
+		box-shadow: 0 0 15px rgba(0,0,0,0.2);
+		border-radius: 5px;
+        text-align: center;
+        max-width: 100%;
+	}
+	.help p {
+		margin: 0px 0 5px;
+		color: #777;
+        text-align: center;
+	}    
+	.help h4 {
+		margin: 10px 0 5px;
+		color: #777;
+        text-align: center;
+	}            
+   .info {
+		padding: 6px 8px;
+		font: 14px/16px Arial, Helvetica, sans-serif;
+		background: white;
+		background: rgba(255,255,255,0.9);
+		box-shadow: 0 0 15px rgba(0,0,0,0.2);
+		border-radius: 5px;
+        text-align: center;
+	}
+	.info h3 {
+		margin: 0 0 5px;
+		color: #777;
+	}   
+   </style>
+
+	<link rel="stylesheet" href="leaflet-0.7.3/leaflet.css" />
+    
+    <script type="text/javascript" src="html5lightbox/jquery.js"></script>
+    <script type="text/javascript" src="html5lightbox/html5lightbox.js"></script>
+
+    <script type="text/javascript">
+        var html5lightbox_options = {
+            watermark: "http://cdn.ientry.com/sites/webpronews/pictures/new-google-logo.jpg",
+            watermarklink: "http://html5box.com"
+        };
+    </script>     
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-56012994-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+</head>
+<body>
+	<div id="map"></div>
+	<script type="text/javascript" src="./leaflet-0.7.3/leaflet.js"></script>  
+	<script type="text/javascript">
+        var markers = [];
+
+        function showMarker(city,d){
+            var blurb = "<b>"+city+"</b><br/>";
+            blurb +=  "<i>Assumed population: </i>"+d.pop+"<br/>";
+            blurb +=  "<i>90th percentile IN/NN time: </i>"+d.IN_NN+"%<br/>";            
+            blurb +=  "<i>90th percentile II/NN time: </i>"+d.II_NN+"%<br/>";                        
+            for (var caption in d.content){
+                var filename = d.content[caption];
+                var sizetag = "";
+                // if (filename.substr(filename.length-3)=='mp4'){
+                //     sizetag = "data-width='800' data-height='450' "
+                // }
+                blurb+="<a href='"+d.content[caption]+"' class='html5lightbox' "+sizetag+"data-group='"+city+"' title='"+caption+" ("+city+")'>"+caption+"</a><br/>";
+            }
+            
+    		m = L.marker([d.lat, d.lon])
+                .addTo(cities)
+    			.bindPopup(blurb)
+                .on('click', onClick);
+            $(".html5lightbox").html5lightbox();
+            markers.push(m);
+        }
+        
+	    var mbAttr = 'Simulations &copy; <a href="http://www.bristol.ac.uk/engineering/people/bharat-b-kunwar/index.html">Bharat Kunwar</a>, ' + 
+                'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>';
+            
+//        var mbUrl = 'http://{s}.tile.osm.org/{z}/{x}/{y}.png';
+		var mbUrl = 'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png';
+
+	    var streets  = L.tileLayer(mbUrl, {id: 'examples.map-i875mjb7',   attribution: mbAttr}),
+            grayscale   = L.tileLayer(mbUrl, {id: 'examples.map-20v6611k', attribution: mbAttr});
+
+        var cities = L.layerGroup();      
+
+        var map = L.map('map', {
+            center: [51.505, -0.09],
+            zoom: 1,
+            layers: [cities,streets]
+        });
+        
+        function onClick(e) {$(".html5lightbox").html5lightbox();}        
+        
+        $.getJSON('./file.json.txt', function(data) {
+            
+            for (var city in data) {
+                showMarker(city, data[city]);
+            }
+            var group = new L.featureGroup(markers);
+            map.fitBounds(group.getBounds());
+                
+    		// control that shows state info on hover
+    		var info = L.control();
+
+    		info.onAdd = function () {
+    			this._div = L.DomUtil.create('div', 'info');
+    			this._div.innerHTML = '<h3>MassEvac.org</h3>Mass Evacuation Demo';
+    			return this._div;
+    		};
+            
+    		info.addTo(map);            
+            
+    		var clickinfo = L.control();            
+
+    		clickinfo.onAdd = function () {
+    			this._div = L.DomUtil.create('div', 'info');
+    			this._div.innerHTML = 'Click on a marker to begin.';
+    			return this._div;
+    		};
+            
+    		clickinfo.addTo(map);
+
+    		var pedinfo = L.control();      
+    		pedinfo.onAdd = function () {
+    			this._div = L.DomUtil.create('div', 'info');
+    			this._div.innerHTML = "<a href='http://www.sciencedirect.com/science/article/pii/S2352146514001288'>PED 2014 Proceedings Paper</a>";
+    			return this._div;
+    		};
+    		pedinfo.addTo(map);  
+            
+    		var sccsinfo = L.control();            
+    		sccsinfo.onAdd = function () {
+    			this._div = L.DomUtil.create('div', 'info');
+    			this._div.innerHTML = "<a href='https://www.dropbox.com/s/g0ebaa36dvuvvh4/main.pdf?dl=1'>SCCS 2014 Presentation</a>";
+    			return this._div;
+    		}; 
+    		sccsinfo.addTo(map);                                            
+            
+    		var twitterinfo = L.control();            
+    		twitterinfo.onAdd = function () {
+    			this._div = L.DomUtil.create('div', 'info');
+    			this._div.innerHTML = "<a href='http://twitter.com/massevac'>Follow on Twitter</a>";
+    			return this._div;
+    		};
+    		twitterinfo.addTo(map);                     
+            
+    		var mailinfo = L.control();            
+    		mailinfo.onAdd = function () {
+    			this._div = L.DomUtil.create('div', 'info');
+    			this._div.innerHTML = "<a href='mailto:b.kunwar@bristol.ac.uk'>Email Bharat</a>";
+    			return this._div;
+    		};
+    		mailinfo.addTo(map);             
+            
+    		var help = L.control();            
+    		help.onAdd = function () {
+    			this._div = L.DomUtil.create('div', 'help');
+                this.help = false;                
+    			this.update();
+    			return this._div;
+    		};
+    		help.update = function () {
+                if (this.helpToggle == true) {
+                    this._div.innerHTML = "<p><a href='#' onclick='myhelp()'>Close</a></p>"+
+                    "<h4> Click on a city to begin.</h4>"+  
+                    "The idea here is to present a platform where people can view what an evacuation of their city would look like. <br/>"+
+                    "More cities and countries will be gradually added. <br/> "+
+                    "Feedback mechanism is on the pipeline. <br/> "+
+                    "Feature requests are welcome. <br/>"+                    
+
+                    "<h4> Assumptions made </h4>"+
+                    "All agents are pedestrians only, there are no vehicles on the road. <br/>"+
+                    "All agents receive the signal to evacuate at the same time. <br/>"+
+                    "All agents then immediately starts to walk to the nearest exit. <br/>"+
+                    "The evacuation time is the measure of how long it takes to walk to the exit. <br/>"+
+                    
+                    "<h4> Sub-scenario 1: No Interaction, No Intervention </h4>"+
+                    "This reflects the time it takes an agent to exit a city from their initial position if there were no bottlenecks and delays. This is intended to normalise the results from the other two sub-scenarios from effect of distance."+
+                    "<h4> Sub-scenario 2: With Interaction, No Intervention </h4>"+
+                    "This reflects what would happen if everybody needed to really evacuate an entire city at the same time! As the road links get denser, agents slow down as described by this <a href='fd-figure.png' class='html5lightbox' title='Pedestrian Fundamental Diagram: The best flow here is around 3 agents per meter per second.'>fundamental diagram</a> which is an approximation of walking behaviour from observation of real people. 'Bottlenecks' as demonstrated by our <a href='BBK_9132.png' data-group='FON' class='html5lightbox' title='Sarah and Nick demonstrating our bottleneck machine (name TBD) at Festival of Nature 2014!'>bottleneck machine</a><a href='BBK_9121.png' data-group='FON' class='html5lightbox' title='Neil and Bharat demonstrating our bottleneck machine (name TBD) at Festival of Nature 2014!'></a> cause further hinderance. <br/>"+
+                    "<h4> Sub-scenario 3: With Interaction, With Intervention </h4>"+
+                    "This sub-scenario is identical to sub-scenario 2 except we 'intervene' by capping the amount of people on any road segment to 3 agents per meter squared to achieve the optimum flow rate of 3 agents per meter per second. In reality, this would translate to co-ordinated teams of marshalls directing the flow of people.<br/>";
+            	    $(".html5lightbox").html5lightbox();
+                } else this._div.innerHTML = "<p><a href='#' onclick='myhelp()'>Help!</a></p>";
+    		};
+            window.myhelp = function (){
+                help.helpToggle = !help.helpToggle;    
+                help.update()
+                map.fitBounds(group.getBounds());                
+            }
+    		help.addTo(map);
+            
+            var baseMaps = {
+                "Colour": streets,
+                "Grayscale": grayscale
+            };
+            //L.control.layers(overlayMaps,baseMaps).addTo(map);
+        });
+        
+        var popup = L.popup();
+        
+        function onMapClick(e) {
+            popup
+                .setLatLng(e.latlng)
+                .setContent(e.latlng.toString())
+                .openOn(map);
+        }
+        
+        map.on('contextmenu', onMapClick);
+
+	</script>
+</body>
+</html>
