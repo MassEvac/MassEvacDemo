@@ -81,9 +81,8 @@
 
         function showMarker(city,d){
             var blurb = "<b>"+city+"</b><br/>";
-            blurb +=  "<i>Assumed population: </i>"+d.pop+"<br/>";
-            blurb +=  "<i>90th percentile IN/NN time: </i>"+d.IN_NN+"%<br/>";            
-            blurb +=  "<i>90th percentile II/NN time: </i>"+d.II_NN+"%<br/>";                        
+            blurb +=  "<i>Assumed Population: </i>"+d.pop+"<br/>";
+            blurb +=  "<i>Evacuation Friendliness: </i>"+Math.round(1/d.IN_NN*1000)+"/10 (higher is better)<br/>";
             for (var caption in d.content){
                 var filename = d.content[caption];
                 var sizetag = "";
@@ -106,8 +105,8 @@
 				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
 				'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>';
             
-//        var mbUrl = 'http://{s}.tile.osm.org/{z}/{x}/{y}.png';
-		var mbUrl = 'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png';
+        var mbUrl = 'http://{s}.tile.osm.org/{z}/{x}/{y}.png';
+		// var mbUrl = 'https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png';
 
 	    var streets  = L.tileLayer(mbUrl, {id: 'examples.map-i875mjb7',   attribution: mbAttr}),
             grayscale   = L.tileLayer(mbUrl, {id: 'examples.map-20v6611k', attribution: mbAttr});
@@ -124,6 +123,8 @@
         
         $.getJSON('./evac.json', function(data) {
             
+            console.log(data)
+
             for (var city in data) {
                 showMarker(city, data[city]);
             }
@@ -135,7 +136,7 @@
 
     		info.onAdd = function () {
     			this._div = L.DomUtil.create('div', 'info');
-    			this._div.innerHTML = '<h3>MassEvac.org</h3>Mass Evacuation Demo';
+    			this._div.innerHTML = '<h3><a href="http://massevac.github.io">massevac.github.io</a></h3>Mass Evacuation Demo';
     			return this._div;
     		};
             
@@ -151,38 +152,30 @@
             
     		clickinfo.addTo(map);
 
-    		var pedinfo = L.control();      
-    		pedinfo.onAdd = function () {
-    			this._div = L.DomUtil.create('div', 'info');
-    			this._div.innerHTML = "<a href='http://www.sciencedirect.com/science/article/pii/S2352146514001288'>PED 2014 Proceedings Paper</a>";
-    			return this._div;
-    		};
-    		pedinfo.addTo(map);  
+            var aboutinfo = L.control();            
+            aboutinfo.onAdd = function () {
+                this._div = L.DomUtil.create('div', 'info');
+                this._div.innerHTML = "<a href='http://massevac.github.io/about'>About Project</a>";
+                return this._div;
+            };
+            aboutinfo.addTo(map);                        
+
+            var mailinfo = L.control();            
+            mailinfo.onAdd = function () {
+                this._div = L.DomUtil.create('div', 'info');
+                this._div.innerHTML = "<a href='mailto:b.kunwar@bristol.ac.uk'>Contact</a>";
+                return this._div;
+            };
+            mailinfo.addTo(map);
             
-    		var sccsinfo = L.control();            
-    		sccsinfo.onAdd = function () {
-    			this._div = L.DomUtil.create('div', 'info');
-    			this._div.innerHTML = "<a href='https://www.dropbox.com/s/g0ebaa36dvuvvh4/main.pdf?dl=1'>SCCS 2014 Presentation</a>";
-    			return this._div;
-    		}; 
-    		sccsinfo.addTo(map);                                            
-            
-    		var twitterinfo = L.control();            
-    		twitterinfo.onAdd = function () {
-    			this._div = L.DomUtil.create('div', 'info');
-    			this._div.innerHTML = "<a href='http://twitter.com/massevac'>Follow on Twitter</a>";
-    			return this._div;
-    		};
-    		twitterinfo.addTo(map);                     
-            
-    		var mailinfo = L.control();            
-    		mailinfo.onAdd = function () {
-    			this._div = L.DomUtil.create('div', 'info');
-    			this._div.innerHTML = "<a href='mailto:b.kunwar@bristol.ac.uk'>Email Bharat</a>";
-    			return this._div;
-    		};
-    		mailinfo.addTo(map);             
-            
+            var twitterinfo = L.control();            
+            twitterinfo.onAdd = function () {
+                this._div = L.DomUtil.create('div', 'info');
+                this._div.innerHTML = "<a href='http://twitter.com/massevac'>Twitter</a>";
+                return this._div;
+            };
+            twitterinfo.addTo(map);
+
     		var help = L.control();            
     		help.onAdd = function () {
     			this._div = L.DomUtil.create('div', 'help');
