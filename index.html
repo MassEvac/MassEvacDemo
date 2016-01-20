@@ -32,7 +32,11 @@
         margin: 0px 0 5px;
         color: #777;
         text-align: center;
-    }        
+    }
+    span#number {
+        font-size: 15px;
+        font-weight: bold;
+    }
    </style>
 
     <link rel="stylesheet" href="leaflet-0.7.3/leaflet.css" />
@@ -96,17 +100,20 @@
                 var popupContent = "<h2>" + feature.properties['name'] + ": Exit Detail</h2>";
             }
 
-            popupContent += s + "/10 evacuation score (higher is better)<br/>";
+            popupContent += "<span id='number'>" + s + "/10</span> evacuation score (higher is better)<br/>";
 
-            popupContent += feature.properties['pop'] + " assumed evacuees.</br>";
+            popupContent += "<span id='number'>" + feature.properties['pop'] + "</span> assumed evacuees.</br>";
             
             if (feature.geometry.type == 'Polygon'){
-                popupContent += feature.properties['no_of_destins'] + " identifiable exits.<br/>";
+                popupContent += "<span id='number'>" + feature.properties['no_of_destins'] + "</span> identifiable exits.<br/>";
                 // popupContent += "<a href='"+feature.properties['video']+"' class='html5lightbox' data-group='"+feature.properties['name']+"' title='Evacuation Simulation Video ("+feature.properties['name']+")'>Video</a><br/>";
-                popupContent += "<video width='320' height='240' controls><source src='"+feature.properties['video']+"' type='video/mp4'>Your browser does not support the video tag.</video>"
+                popupContent += "<video width='320' height='240' controls><source src='"+feature.properties['video']+"' type='video/mp4'>Your browser does not support the video tag.</video>";
             }
             
-            popupContent += "<p><table><tr><th>% of population</th><th>Distance to nearest exit</th><th>Minimum time required to evacuate</th></tr><tr><td>10%</td><td>"+Math.round(feature.properties[keys[0]])+" metres</td><td>"+Math.round(feature.properties[keys[1]])+" minutes</td></tr><tr><td>50%</td><td>"+Math.round(feature.properties[keys[2]])+" metres</td><td>"+Math.round(feature.properties[keys[3]])+" minutes</td></tr><tr><td>90%</td><td>"+Math.round(feature.properties[keys[4]])+" metres</td><td>"+Math.round(feature.properties[keys[5]])+" minutes</td></tr></table></p>";
+            popupContent += "<p><table>"
+            popupContent += "<tr><th>% of evacuees</th><th>Distance to nearest exit</th><th>Minimum time required to evacuate</th></tr>";
+            popupContent += "<tr><td>10%</td><td>"+Math.round(feature.properties[keys[0]])+" metres</td><td>"+Math.round(feature.properties[keys[1]])+" minutes</td></tr><tr><td>50%</td><td>"+Math.round(feature.properties[keys[2]])+" metres</td><td>"+Math.round(feature.properties[keys[3]])+" minutes</td></tr><tr><td>90%</td><td>"+Math.round(feature.properties[keys[4]])+" metres</td><td>"+Math.round(feature.properties[keys[5]])+" minutes</td></tr>";
+            popupContent += "</table></p>";
 
             if (feature.geometry.type == 'Polygon'){
                 layer.bindPopup(popupContent)
@@ -209,15 +216,18 @@
             if (this.helpToggle == true) {
                 this._div.innerHTML = "<p><a href='#' onclick='myhelp()'>Close</a></p>"+
 
-                "<h3>Zoom and click on a city to begin.</h3>"+  
-                "Imagine you are told that there has been a nuclear meltdown nearby and that need to evacuate now. Since everyone else will also be trying to do the same, major road links may be strained beyond maximum operating capacity depending on how populated your neighbourhood is and number of exits. We have all experienced slowing down in a such dense crowd at some point in our lives. This behaviour is neatly described by this <a href='fd-figure.png' class='html5lightbox' title='Pedestrian Fundamental Diagram: The best flow here is around 3 agents per meter per second.'>fundamental diagram</a> which is an approximation of walking behaviour from observation of real people. As we managed to demonstrate using our bespoke <a href='photos/BBK_9132.png' data-group='FON' class='html5lightbox' title='Sarah and Nick demonstrating our 'lentil-o-meter' at Festival of Nature 2014!'>'lentil-o-meter'</a><a href='photos/BBK_9121.png' data-group='FON' class='html5lightbox' title='Neil and Bharat demonstrating our 'lentil-o-meter' at Festival of Nature 2014!'></a>, bottlenecks do cause delay to the rate at which lentils are able to flow through an aperture! Wouldn't it be nice to know in advance what routes are more likely to be available is such emergencies? As such, this website showcases total evacuation for some UK cities which Bharat is investigating as a part of his PhD. Feedback, feature and location requests are welcome. All information provided is intended to be consumed with a pinch of salt.<br/>"+                    
+                "<h3>Zoom in and click on a city to begin.</h3>"+  
+                "Imagine your entire city has been ordered to evacuate. All the major roads are strained beyond their capacity. All the roads are completely packed with people and there seems to be little movement. We have all experienced this in a dense crowd at one point or another. This is neatly captured by this <a href='fd-figure.png' class='html5lightbox' title='Pedestrian Fundamental Diagram: The best flow here is around 3 agents per meter per second.'>'fundamental diagram'</a> which is an approximation of walking behaviour from observation of real people. We demonstrated this effect using our bespoke <a href='photos/BBK_9132.png' data-group='FON' class='html5lightbox' title='Sarah and Nick demonstrating our 'lentil-o-meter' at Festival of Nature 2014!'></a><a href='photos/BBK_9121.png' data-group='FON' class='html5lightbox' title='Neil and Bharat demonstrating our 'lentil-o-meter' at Festival of Nature 2014!'>'lentil-o-meter'</a> using lentil evacuees. Wouldn't it have been nice to know in advance what routes are more likely to be underused is such emergencies so that evacuees can make a more informed decision? As such, this website showcases total evacuation for some UK cities which Bharat is investigating as a part of his PhD. Feedback, feature and location requests are welcome. All information provided is intended to be consumed with a pinch of salt.<br/>"+                
+
+                "<h3>Evacuation score</h3>"+  
+                "The score is simply the ratio between 90% free flow time Tff90% (from free flow velocity 1.34 m/s and 90% distance to exit D90%) and 90% evacuation time estimate T90% (from the simulation). So, <p>score = Tff90%/T90% = (D90%/1.34/60)/T90%</p><br/>"+
 
                 "<h3> Assumptions:</h3><ol>"+
                 "<li> Evacuation type is a total evacuation scenario, for which exit nodes lie at intersection between major roads and city administrative boundary. <br/>"+
                 "<li> Evacuation mode is by walking only. <br/>"+
-                "<li> No dynamic routing due to avoid congestion at bottlenecks.</ol><br/>"+
+                "<li> No dynamic routing due to bottlenecks.</ol><br/>"+
 
-                "<p>Website last updated: 6 January 2016</p>";
+                "<p>Website last updated: 11 January 2016</p>";
                 $(".html5lightbox").html5lightbox();
             } else this._div.innerHTML = "<p><a href='#' onclick='myhelp()'>Help!</a></p>";
         };
